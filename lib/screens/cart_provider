@@ -1,0 +1,45 @@
+// ./lib/providers/cart_provider.dart
+
+import 'package:flutter/foundation.dart';
+import '../models/pizza.dart';
+
+class CartItem {
+  final Pizza pizza;
+  int quantity;
+
+  CartItem({required this.pizza, this.quantity = 1,});
+}
+
+class CartProvider with ChangeNotifier {
+  final Map<String, CartItem> _items = {};
+
+  Map<String, CartItem> get items => _items;
+
+  void addPizza(Pizza pizza) {
+    if (_items.containsKey(pizza.id)) {
+      _items[pizza.id]!.quantity++;
+    } else {
+      _items[pizza.id] = CartItem(pizza: pizza);
+    }
+    notifyListeners();
+  }
+
+  void removePizza(String id) {
+    if (_items.containsKey(id)) {
+      _items[id]!.quantity--;
+      if (_items[id]!.quantity <= 0) {
+        _items.remove(id);
+      }
+      notifyListeners();
+    }
+  }
+
+  void removeAllPizza(String id) {
+    _items.remove(id);
+    notifyListeners();
+  }
+
+  double get totalAmount {
+    return _items.values.fold(0.0, (sum, item) => sum + item.pizza.price * item.quantity);
+  }
+}
